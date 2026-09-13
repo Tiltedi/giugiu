@@ -122,7 +122,7 @@
           <div class="ticket__row"><span class="ticket__k">Passenger</span><span class="ticket__v">${esc(C.name)}</span></div>
           <div class="ticket__row"><span class="ticket__k">To</span><span class="ticket__v"><span class="ticket__redacted" role="img" aria-label="secret"></span></span></div>
           <div class="ticket__row"><span class="ticket__k">When</span><span class="ticket__v${wrapWhen ? " ticket__v--wrap" : ""}">${esc(whenText)}</span></div>
-          <div class="ticket__row"><span class="ticket__k">Seat</span><span class="ticket__v">Next to us</span></div>
+          <div class="ticket__row"><span class="ticket__k">Seat</span><span class="ticket__v">Next to ${esc(C.companion || "us")}</span></div>
         </div>
         <div class="ticket__stub" aria-hidden="true"><span class="ticket__class">40</span><span class="ticket__barcode"></span></div>
       </div>`;
@@ -494,6 +494,7 @@
   function init() {
     $$("[data-name]").forEach((el) => { el.textContent = C.name; });
     $$("[data-from]").forEach((el) => { el.textContent = C.from; });
+    $$("[data-companion]").forEach((el) => { el.textContent = C.companion || "us"; });
     if (C.name) document.title = `Pack a bag, ${C.name}`;
 
     $("#ticket-reveal").innerHTML = ticketHTML({ whenText: "You tell us" });

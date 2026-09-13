@@ -4,7 +4,8 @@
    ------------------------------------------------------------------ */
 window.GIUGIU = {
   name: "Giulia",
-  from: "the two of us",              // sign-off on the last screen
+  companion: "Luca",                  // who actually travels with her
+  from: "the two of us",              // sign-off on the last screen (the gift-givers)
   email: "luca.pilurzu@hotmail.com",  // where her answers are emailed
 
   // Candidate weekends: the Saturday of each one, as YYYY-MM-DD.
@@ -33,6 +34,6 @@ window.GIUGIU = {
     { title: "Weather check", daysBefore: 7, detail: "One week out we tell you what the sky's doing. Pack for it." },
     { title: "Packing note",  daysBefore: 3, detail: "What to bring, what to leave." },
     { title: "Where to be",   daysBefore: 1, detail: "Meeting point and time. Still not the place." },
-    { title: "The reveal",    daysBefore: 0, detail: "You'll know when we get there. Not before." },
+    { title: "The reveal",    daysBefore: 0, detail: "You'll know when you arrive. Not before." },
   ],
 };
