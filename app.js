@@ -195,6 +195,7 @@
   const subject = () => `${C.name}'s answers · surprise weekend`;
 
   async function deliver(answers) {
+    if (C.preview) return true; // preview builds never email anyone
     if (!C.email) return false;
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 12000);
@@ -348,6 +349,7 @@
     $("#ticket-done").innerHTML = ticketHTML({ done: true, whenText, wrapWhen: !confirmed, stampText: confirmed ? "Confirmed" : "Received" });
     $("#delivery-notice").hidden = record.delivered !== false;
     $("#mailto-link").href = mailtoHref(a);
+    $("#preview-note").hidden = !C.preview;
     startCountdowns(record);
     if (celebrate) setTimeout(confetti, 350);
   }

@@ -187,6 +187,15 @@ body {
 .count.is-on { color: var(--coral); }
 
 .tiny { margin: 18px 0 0; text-align: center; }
+.preview-note {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+.preview-note[hidden] { display: none; }
 
 .signoff {
   margin: 40px 0 0;

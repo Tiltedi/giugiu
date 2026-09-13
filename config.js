@@ -7,6 +7,7 @@ window.GIUGIU = {
   companion: "Luca",                  // who actually travels with her
   from: "the two of us",              // sign-off on the last screen (the gift-givers)
   email: "luca.pilurzu@hotmail.com",  // where her answers are emailed
+  preview: false,                     // true = complete the flow without emailing (for test builds)
 
   // Candidate weekends: the Saturday of each one, as YYYY-MM-DD.
   // She sees them as "Sat 17 – Sun 18 Oct". Add or remove freely.
