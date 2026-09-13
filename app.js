@@ -1,15 +1,15 @@
 /* ==================================================================
    Pack a bag, Giulia — behaviour
-   Flow: reveal → weekends → parameters → done (+ countdowns).
-   Answers are emailed via FormSubmit and kept in localStorage so the
-   same link shows her countdowns when she comes back.
+   Flow: reveal → weekends → direction → done (+ countdowns).
+   Answers are emailed via FormSubmit and kept in localStorage; once
+   they are pasted into trip.js that file drives the page everywhere.
    ================================================================== */
 (() => {
   "use strict";
 
   const C = window.GIUGIU || {};
   const T = window.GIUGIU_TRIP || {};
-  const STORAGE_KEY = "giugiu:v1";
+  const STORAGE_KEY = "giugiu:v2";
   const DAY = 864e5;
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -22,18 +22,6 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const escLines = (s) => esc(s).replace(/\r?\n/g, "<br>");
-
-  /* ---------- trip file (trip.js) ---------- */
-
-  function tripAnswers() {
-    const a = T.answers;
-    return a && Array.isArray(a.weekends) && a.weekends.length ? a : null;
-  }
-  function noteFor(key) {
-    const n = T.notes && key ? T.notes[key] : null;
-    return typeof n === "string" && n.trim() ? n.trim() : null;
-  }
-  const showEarly = (key) => Array.isArray(T.showEarly) && T.showEarly.includes(key);
 
   /* ---------- dates ---------- */
 
@@ -50,19 +38,25 @@
     return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
   }
   function startOfToday() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
-
-  // "Sat 17 – Sun 18 Oct" (or "Sat 31 Oct – Sun 1 Nov")
-  function weekendLabel(iso) {
-    const sat = dateOnly(iso);
-    if (!sat) return iso;
-    const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
-    if (sat.getMonth() === sun.getMonth()) {
-      return `${DAYS[sat.getDay()]} ${sat.getDate()} – ${DAYS[sun.getDay()]} ${sun.getDate()} ${MONTHS[sat.getMonth()]}`;
-    }
-    return `${DAYS[sat.getDay()]} ${sat.getDate()} ${MONTHS[sat.getMonth()]} – ${DAYS[sun.getDay()]} ${sun.getDate()} ${MONTHS[sun.getMonth()]}`;
-  }
   const shortDate = (d) => `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
-  const tinyDate = (iso) => { const d = dateOnly(iso); return d ? `${d.getDate()}\u00a0${MONTHS[d.getMonth()]}` : iso; };
+  const tinyDate = (iso) => { const d = dateOnly(iso); return d ? `${d.getDate()} ${MONTHS[d.getMonth()]}` : iso; };
+
+  /* ---------- weekends ({ from, to }, identified by their first day) ---------- */
+
+  const weekends = () => (C.weekends || []).filter((w) => w && dateOnly(w.from));
+  const weekendByFrom = (from) => weekends().find((w) => w.from === from) || null;
+
+  // "Fri 9 – Sun 11 Oct" (or "Fri 30 Oct – Sun 1 Nov")
+  function weekendLabel(w) {
+    const a = dateOnly(w.from);
+    const b = dateOnly(w.to) || a;
+    if (!a) return String(w.from);
+    if (a.getMonth() === b.getMonth()) {
+      return `${DAYS[a.getDay()]} ${a.getDate()} – ${DAYS[b.getDay()]} ${b.getDate()} ${MONTHS[a.getMonth()]}`;
+    }
+    return `${DAYS[a.getDay()]} ${a.getDate()} ${MONTHS[a.getMonth()]} – ${DAYS[b.getDay()]} ${b.getDate()} ${MONTHS[b.getMonth()]}`;
+  }
+  const labelFor = (from) => { const w = weekendByFrom(from); return w ? weekendLabel(w) : String(from); };
 
   function relWeeks(iso) {
     const d = dateOnly(iso);
@@ -82,6 +76,18 @@
     return `${mi} min`;
   }
 
+  /* ---------- trip file (trip.js) ---------- */
+
+  function tripAnswers() {
+    const a = T.answers;
+    return a && Array.isArray(a.weekends) && a.weekends.length ? a : null;
+  }
+  function noteFor(key) {
+    const n = T.notes && key ? T.notes[key] : null;
+    return typeof n === "string" && n.trim() ? n.trim() : null;
+  }
+  const showEarly = (key) => Array.isArray(T.showEarly) && T.showEarly.includes(key);
+
   /* ---------- storage ---------- */
 
   function load() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; } }
@@ -90,10 +96,11 @@
 
   /* ---------- state ---------- */
 
-  const state = { weekends: [], direction: null, kind: null, vibe: null, avoid: "" };
+  const state = { weekends: [], direction: null, avoid: "" };
   let pendingConfirmed = null; // a ?go= date seen before she has submitted
   let countdownTimer = null;
   let submitting = false;
+  let needleAngle = 0;
 
   const screens = {
     reveal: $("#screen-reveal"),
@@ -145,13 +152,13 @@
   /* ---------- step 1: weekends ---------- */
 
   function renderWeekends() {
-    $("#weekend-list").innerHTML = (C.weekends || []).map((iso, i) => `
+    $("#weekend-list").innerHTML = weekends().map((w, i) => `
       <li class="weekend">
-        <input type="checkbox" id="wk-${i}" name="weekends" value="${esc(iso)}"${state.weekends.includes(iso) ? " checked" : ""}>
+        <input type="checkbox" id="wk-${i}" name="weekends" value="${esc(w.from)}"${state.weekends.includes(w.from) ? " checked" : ""}>
         <label class="weekend__card" for="wk-${i}">
           <span class="weekend__text">
-            <span class="weekend__day">${esc(relWeeks(iso))}</span>
-            <span class="weekend__date">${esc(weekendLabel(iso))}</span>
+            <span class="weekend__day">${esc(relWeeks(w.from))}</span>
+            <span class="weekend__date">${esc(weekendLabel(w))}</span>
           </span>
           <span class="weekend__check" aria-hidden="true">${CHECK}</span>
         </label>
@@ -166,17 +173,41 @@
     $("[data-action='to-params']").disabled = n === 0;
   }
 
-  /* ---------- step 2: parameters ---------- */
+  /* ---------- step 2: the compass ---------- */
 
-  function renderChips(key, options) {
-    $(`[data-chips="${key}"]`).innerHTML = (options || []).map((opt, i) => `
-      <span class="chip">
-        <input type="radio" id="${key}-${i}" name="${key}" value="${esc(opt)}"${state[key] === opt ? " checked" : ""}>
-        <label class="chip__label" for="${key}-${i}">${esc(opt)}</label>
-      </span>`).join("");
+  const POS = { 0: "n", 90: "e", 180: "s", 270: "w" };
+
+  function renderCompass() {
+    const points = (C.directions || []).map((d, i) => {
+      const angle = Number.isFinite(d.angle) ? ((d.angle % 360) + 360) % 360 : null;
+      const pos = angle === null ? "c" : (POS[angle] || "c");
+      return `
+        <span class="chip compass__pt compass__pt--${pos}">
+          <input type="radio" id="direction-${i}" name="direction" value="${esc(d.label)}" data-angle="${angle === null ? "" : angle}">
+          <label class="chip__label${pos === "c" ? " chip__label--round" : ""}" for="direction-${i}">${esc(d.label)}</label>
+        </span>`;
+    }).join("");
+    $("[data-compass]").innerHTML = `
+      <div class="compass__ring" aria-hidden="true"></div>
+      <div class="compass__ticks" aria-hidden="true"></div>
+      <div class="compass__needle" aria-hidden="true"></div>
+      ${points}`;
   }
 
-  const ORDER = ["direction", "kind", "vibe", "avoid"];
+  function pointNeedle(angleAttr) {
+    const compass = $("[data-compass]");
+    compass.classList.add("is-set");
+    const anywhere = angleAttr === "" || angleAttr == null;
+    compass.classList.toggle("is-anywhere", anywhere);
+    if (anywhere) return;
+    // take the short way round
+    const target = Number(angleAttr);
+    let delta = ((target - (needleAngle % 360)) + 540) % 360 - 180;
+    needleAngle += delta;
+    compass.style.setProperty("--angle", `${needleAngle}deg`);
+  }
+
+  const ORDER = ["direction", "avoid"];
 
   function revealNext(afterKey) {
     const nextKey = ORDER[ORDER.indexOf(afterKey) + 1];
@@ -188,16 +219,14 @@
   }
 
   function updateSend() {
-    $("#send").disabled = !(state.direction && state.kind && state.vibe);
+    $("#send").disabled = !state.direction;
   }
 
   function resetParams() {
-    ["direction", "kind", "vibe"].forEach((k) => {
-      state[k] = null;
-      $$(`input[name="${k}"]`).forEach((i) => { i.checked = false; });
-      const q = $(`[data-q="${k}"]`);
-      if (k !== "direction") q.hidden = true;
-    });
+    state.direction = null;
+    $$('input[name="direction"]').forEach((i) => { i.checked = false; });
+    const compass = $("[data-compass]");
+    compass.classList.remove("is-set", "is-anywhere");
     state.avoid = "";
     $("#avoid").value = "";
     $('[data-q="avoid"]').hidden = true;
@@ -218,17 +247,13 @@
       _template: "table",
       _captcha: "false",
       name: C.name,
-      weekends: answers.weekends.map(weekendLabel).join("  /  "),
+      weekends: answers.weekends.map(labelFor).join("  /  "),
       direction: answers.direction,
-      kind_of_place: answers.kind,
-      vibe: answers.vibe,
-      countries_to_avoid: answers.avoid || "(none)",
+      places_to_avoid: answers.avoid || "(none)",
       submitted: new Date().toString(),
       paste_into_trip_js: JSON.stringify({
         weekends: answers.weekends,
         direction: answers.direction,
-        kind: answers.kind,
-        vibe: answers.vibe,
         avoid: answers.avoid || "",
         submittedAt: submittedAt || new Date().toISOString(),
       }),
@@ -254,11 +279,9 @@
     const body = [
       "Hi! Here are my answers.",
       "",
-      `Weekends: ${answers.weekends.map(weekendLabel).join(", ")}`,
+      `Weekends: ${answers.weekends.map(labelFor).join(", ")}`,
       `Direction: ${answers.direction}`,
-      `Kind of place: ${answers.kind}`,
-      `Vibe: ${answers.vibe}`,
-      `Countries to avoid: ${answers.avoid || "none"}`,
+      `Places to avoid: ${answers.avoid || "none"}`,
       "",
       `${C.name} x`,
     ].join("\n");
@@ -276,22 +299,29 @@
 
   /* ---------- step 3: done + countdowns ---------- */
 
-  function anchorFor(record) {
-    if (record.confirmed) {
-      const d = parseLocal(record.confirmed);
-      if (d) return { date: d, confirmed: true };
-    }
-    const now = Date.now();
-    const dates = (record.answers.weekends || []).map(parseLocal).filter(Boolean).sort((a, b) => a - b);
-    const upcoming = dates.find((d) => d.getTime() + 2 * DAY > now) || dates[dates.length - 1];
-    return upcoming ? { date: upcoming, confirmed: false } : null;
+  // Until the weekend is confirmed, her page counts down to our next message.
+  function nextNewsAt(record) {
+    const base = record.submittedAt ? new Date(record.submittedAt) : null;
+    if (!base || Number.isNaN(base.getTime())) return null;
+    const cfg = C.nextNews || {};
+    const first = weekends()[0];
+    const pickedEarliest = !!first && (record.answers.weekends || []).includes(first.from);
+    const days = pickedEarliest
+      ? (Number.isFinite(cfg.daysIfEarliest) ? cfg.daysIfEarliest : (Number.isFinite(cfg.days) ? cfg.days : 25))
+      : (Number.isFinite(cfg.days) ? cfg.days : 25);
+    return new Date(base.getTime() + days * DAY);
   }
 
-  function renderHero(el, anchor, now, picks) {
-    const diff = anchor.date - now;
+  function renderHero(el, kind, date, now) {
+    const diff = date - now;
     let num, unit = "", sub;
     if (diff <= 0) {
-      num = "Today"; sub = "Bag by the door.";
+      if (kind === "news") { num = "Soon"; sub = "Any moment now."; }
+      else { num = "Today"; sub = "Bag by the door."; }
+    } else if (kind === "news") {
+      // whole days, counting today: "25 days" right after she submits
+      const days = Math.ceil(diff / DAY);
+      num = days; unit = days === 1 ? "day" : "days"; sub = "Then you'll know your weekend.";
     } else {
       const days = Math.floor(diff / DAY);
       const hours = Math.floor((diff % DAY) / 36e5);
@@ -300,17 +330,12 @@
       else if (hours >= 1) { num = hours; unit = hours === 1 ? "hour" : "hours"; sub = `and ${mins} minute${mins === 1 ? "" : "s"}`; }
       else { num = Math.max(1, mins); unit = "min"; sub = "Almost."; }
     }
-    const tag = anchor.confirmed
-      ? `Departure <span class="pill">Confirmed</span>`
-      : `Earliest departure`;
-    const date = anchor.confirmed
-      ? shortDate(anchor.date)
-      : `${shortDate(anchor.date)} · ${picks} weekend${picks === 1 ? "" : "s"} in play`;
+    const tag = kind === "news" ? "Next you'll hear from us" : `Departure <span class="pill">Confirmed</span>`;
     el.innerHTML = `
       <p class="hero-count__tag">${tag}</p>
       <p class="hero-count__num">${esc(num)}${unit ? `<small>${unit}</small>` : ""}</p>
       <p class="hero-count__sub">${esc(sub)}</p>
-      <p class="hero-count__date">${esc(date)}</p>`;
+      <p class="hero-count__date">${esc(shortDate(date))}</p>`;
   }
 
   function stopCountdowns() { if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; } }
@@ -319,26 +344,29 @@
     stopCountdowns();
     const hero = $("#hero-count");
     const list = $("#milestones");
-    const anchor = anchorFor(record);
-    if (!anchor) { hero.innerHTML = ""; list.innerHTML = ""; return; }
+    const departure = record.confirmed ? parseLocal(record.confirmed) : null;
+    const newsAt = departure ? null : nextNewsAt(record);
 
     const items = (C.milestones || []).map((m) => ({
       ...m,
-      at: new Date(anchor.date.getTime() - (m.daysBefore || 0) * DAY),
-      whenLabel: m.daysBefore ? `${m.daysBefore} day${m.daysBefore === 1 ? "" : "s"} before` : "departure day",
+      at: departure ? new Date(departure.getTime() - (m.daysBefore || 0) * DAY) : null,
+      rowLabel: m.daysBefore ? `${m.daysBefore} day${m.daysBefore === 1 ? "" : "s"} before` : "departure day",
       note: noteFor(m.key),
     }));
     if (C.birthday) {
       const b = parseLocal(`${String(C.birthday).slice(0, 10)}T00:00`);
-      if (b) items.push({ title: "Your 40th", detail: "The actual day. Cake is not optional.", at: b, whenLabel: "the big day" });
+      if (b) items.push({ key: "birthday", title: "Your 40th", detail: "The actual day. Cake is not optional.", at: b, rowLabel: "the big day", note: null });
     }
-    items.sort((a, b) => a.at - b.at);
+    if (departure) items.sort((a, b) => (a.at || 0) - (b.at || 0));
 
     // The expanded content: the teaser until the note is available, then the note itself.
-    const panelHTML = (m, available) => `
+    const panelHTML = (m, available) => {
+      const dateLine = m.at ? `${shortDate(m.at)} · ${m.rowLabel}` : (m.daysBefore ? `${m.rowLabel} departure` : "on departure day");
+      return `
       <p class="milestone__detail">${available
         ? `<span class="milestone__from">From us</span><span class="milestone__note">${escLines(m.note)}</span>`
-        : esc(m.detail)}<span class="milestone__date">${esc(shortDate(m.at))} · ${esc(m.whenLabel)}</span></p>`;
+        : esc(m.detail)}<span class="milestone__date">${esc(dateLine)}</span></p>`;
+    };
 
     list.innerHTML = items.map((m, i) => `
       <li class="milestone">
@@ -350,20 +378,21 @@
         <div class="milestone__panel" id="ms-${i}"><div></div></div>
       </li>`).join("");
 
-    const picks = (record.answers.weekends || []).length;
     const tick = () => {
       const now = Date.now();
-      renderHero(hero, anchor, now, picks);
+      if (departure) renderHero(hero, "trip", departure, now);
+      else if (newsAt) renderHero(hero, "news", newsAt, now);
+      else hero.innerHTML = "";
       $$(".milestone", list).forEach((li, i) => {
         const m = items[i];
-        const diff = m.at - now;
-        const unlocked = diff <= 0;
+        const unlocked = !!m.at && m.at - now <= 0;
         const available = !!m.note && (unlocked || showEarly(m.key));
-        $("[data-when]", li).textContent = unlocked || available ? "Unlocked" : `in ${relShort(diff)}`;
+        const when = unlocked || available ? "Unlocked" : m.at ? `in ${relShort(m.at - now)}` : m.rowLabel;
+        $("[data-when]", li).textContent = when;
         li.classList.toggle("is-live", unlocked || available);
-        const state = available ? "note" : "teaser";
-        if (li.dataset.state !== state) {
-          li.dataset.state = state;
+        const stateKey = available ? "note" : "teaser";
+        if (li.dataset.state !== stateKey) {
+          li.dataset.state = stateKey;
           $(".milestone__panel > div", li).innerHTML = panelHTML(m, available);
         }
       });
@@ -467,17 +496,17 @@
     });
 
     $("#params-form").addEventListener("change", (e) => {
-      const key = e.target.name;
-      if (["direction", "kind", "vibe"].includes(key)) {
-        state[key] = e.target.value;
-        revealNext(key);
+      if (e.target.name === "direction") {
+        state.direction = e.target.value;
+        pointNeedle(e.target.dataset.angle);
+        revealNext("direction");
         updateSend();
       }
     });
 
     $("#params-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (submitting || !(state.direction && state.kind && state.vibe && state.weekends.length)) return;
+      if (submitting || !(state.direction && state.weekends.length)) return;
       submitting = true;
       state.avoid = $("#avoid").value.trim();
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -486,7 +515,7 @@
       btn.classList.add("is-busy");
       btn.textContent = "Sending";
 
-      const answers = { ...state, weekends: state.weekends.slice() };
+      const answers = { weekends: state.weekends.slice(), direction: state.direction, avoid: state.avoid };
       const submittedAt = new Date().toISOString();
       const delivered = await deliver(answers, submittedAt);
       const record = { answers, submittedAt, delivered, confirmed: pendingConfirmed || null };
@@ -541,9 +570,7 @@
 
     $("#ticket-reveal").innerHTML = ticketHTML({ whenText: "You tell us" });
     renderWeekends();
-    renderChips("direction", C.directions);
-    renderChips("kind", C.kinds);
-    renderChips("vibe", C.vibes);
+    renderCompass();
     updateCount();
     updateSend();
     bind();
@@ -568,13 +595,7 @@
     const trip = tripAnswers();
     if (trip) {
       record = {
-        answers: {
-          weekends: trip.weekends.slice(),
-          direction: trip.direction || null,
-          kind: trip.kind || null,
-          vibe: trip.vibe || null,
-          avoid: trip.avoid || "",
-        },
+        answers: { weekends: trip.weekends.slice(), direction: trip.direction || null, avoid: trip.avoid || "" },
         submittedAt: trip.submittedAt || null,
         delivered: true,
         confirmed: pendingConfirmed || (record && record.confirmed) || null,

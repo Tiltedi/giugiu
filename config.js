@@ -1,36 +1,43 @@
 /* ------------------------------------------------------------------
    Everything you might want to change lives here.
-   Edit, save, redeploy. No other file needs touching.
+   Edit, save, push. No other file needs touching.
    ------------------------------------------------------------------ */
 window.GIUGIU = {
   name: "Giulia",
   companion: "Luca",                  // who actually travels with her
-  from: "the two of us",              // sign-off on the last screen (the gift-givers)
+  from: "Marijke & Luca",             // the gift-givers: named on the first screen and in the sign-off
   email: "luca.pilurzu@hotmail.com",  // where her answers are emailed
   preview: false,                     // true = complete the flow without emailing (for test builds)
 
-  // Candidate weekends: the Saturday of each one, as YYYY-MM-DD.
-  // She sees them as "Sat 17 – Sun 18 Oct". Add or remove freely.
+  // The weekends she can choose from. She sees each as "Fri 9 – Sun 11 Oct".
   weekends: [
-    "2026-10-17",
-    "2026-10-24",
-    "2026-11-07",
-    "2026-11-14",
-    "2026-11-28",
+    { from: "2026-10-09", to: "2026-10-11" },
+    { from: "2026-11-20", to: "2026-11-22" },
+    { from: "2026-12-04", to: "2026-12-06" },
+    { from: "2027-01-15", to: "2027-01-17" },
+    { from: "2027-01-22", to: "2027-01-24" },
   ],
 
-  // Countdowns assume you leave at this hour (her local time) on the Saturday.
+  // After she submits, her page counts down to your next message.
+  // The shorter wait applies when she picked the first weekend in the list above.
+  nextNews: { days: 25, daysIfEarliest: 10 },
+
+  // Countdowns assume you leave at this hour (her local time) on the first day.
   departureHour: 8,
 
   // Optional: her birthday as YYYY-MM-DD adds a "Your 40th" countdown. null hides it.
   birthday: null,
 
-  // Tap-to-choose options. Keep them short so they fit on a phone.
-  directions: ["North", "South", "East", "West", "Anywhere"],
-  kinds: ["City", "Sea", "Mountains", "Countryside"],
-  vibes: ["Slow & cosy", "Big nights", "Eat everything", "Explore all day"],
+  // The compass. Angles: 0 north, 90 east, 180 south, 270 west; null sits in the middle.
+  directions: [
+    { label: "North", angle: 0 },
+    { label: "East", angle: 90 },
+    { label: "South", angle: 180 },
+    { label: "West", angle: 270 },
+    { label: "Anywhere", angle: null },
+  ],
 
-  // Countdowns she can expand after submitting. daysBefore counts back from departure.
+  // Countdowns she can expand once the weekend is confirmed. daysBefore counts back from departure.
   // "detail" is the teaser; your real note for each key goes in trip.js.
   milestones: [
     { key: "weather", title: "Weather check", daysBefore: 7, detail: "One week out we tell you what the sky's doing. Pack for it." },

@@ -25,9 +25,9 @@
     <!-- 0 · Reveal -->
     <section class="screen screen--reveal" id="screen-reveal" data-screen="reveal">
       <div class="screen__body screen__body--center">
-        <p class="eyebrow" data-stagger style="--i:0">For <span data-name>Giulia</span> · 40 &amp; going places</p>
+        <p class="eyebrow" data-stagger style="--i:0">A gift from <span data-from>Marijke &amp; Luca</span></p>
         <h1 class="display" data-stagger style="--i:1">Pack a bag,<br><em><span data-name>Giulia</span>.</em></h1>
-        <p class="lede" data-stagger style="--i:2">For your 40th we're sending you away for a weekend, with <span data-companion>Luca</span>. Where? Our secret. We sort everything. You just tell us when you're free and what you like. Two minutes, promise.</p>
+        <p class="lede" data-stagger style="--i:2">Your 40th present from <span data-from>Marijke &amp; Luca</span>: a weekend away. <span data-companion>Luca</span> comes too. Where? Our secret. We sort everything. Tell us when you're free and which way to point. Two minutes, promise.</p>
         <div class="ticket-wrap" data-stagger style="--i:3" id="ticket-reveal" aria-hidden="true"></div>
       </div>
       <div class="screen__foot" data-stagger style="--i:4">
@@ -54,32 +54,24 @@
       </div>
     </section>
 
-    <!-- 2 · Parameters -->
+    <!-- 2 · Direction -->
     <section class="screen" id="screen-params" data-screen="params" hidden>
       <header class="screen__head">
         <div class="topline" data-stagger style="--i:0">
-          <p class="eyebrow"><span class="step">02 / 03</span> What</p>
+          <p class="eyebrow"><span class="step">02 / 03</span> Where</p>
           <button class="link link--back" type="button" data-action="back-to-weekends">← back</button>
         </div>
-        <h2 class="display display--sm" data-stagger style="--i:1">Point us somewhere.</h2>
-        <p class="lede" data-stagger style="--i:2">Three quick taps.</p>
+        <h2 class="display display--sm" data-stagger style="--i:1">Which corner of Europe?</h2>
+        <p class="lede" data-stagger style="--i:2">Tap a direction, or leave it to us.</p>
       </header>
       <form class="screen__body" id="params-form" novalidate>
-        <fieldset class="q" data-q="direction" data-stagger style="--i:3">
-          <legend class="q__label">Which way?</legend>
-          <div class="chips" data-chips="direction"></div>
-        </fieldset>
-        <fieldset class="q" data-q="kind" hidden>
-          <legend class="q__label">What kind of place?</legend>
-          <div class="chips" data-chips="kind"></div>
-        </fieldset>
-        <fieldset class="q" data-q="vibe" hidden>
-          <legend class="q__label">And the vibe?</legend>
-          <div class="chips" data-chips="vibe"></div>
+        <fieldset class="q q--compass" data-q="direction" data-stagger style="--i:3">
+          <legend class="sr-only">Which corner of Europe?</legend>
+          <div class="compass" data-compass></div>
         </fieldset>
         <div class="q" data-q="avoid" hidden>
           <label class="q__label" for="avoid">Anywhere you'd rather skip?</label>
-          <input class="input" id="avoid" name="avoid" type="text" placeholder="Countries to avoid (optional)" autocomplete="off" autocapitalize="words" enterkeyhint="send" maxlength="120">
+          <input class="input" id="avoid" name="avoid" type="text" placeholder="Places to avoid (optional)" autocomplete="off" autocapitalize="words" enterkeyhint="send" maxlength="120">
         </div>
       </form>
       <div class="screen__foot">
@@ -113,7 +105,7 @@
           <ul class="milestones" id="milestones"></ul>
         </section>
 
-        <p class="signoff" data-stagger style="--i:5">With love,<br><em data-from>the two of us</em></p>
+        <p class="signoff" data-stagger style="--i:5">With love,<br><em data-from>Marijke &amp; Luca</em></p>
         <p class="tiny" id="reset-row"><button class="link" type="button" data-action="reset" id="reset">Made a mistake? Start over</button></p>
         <p class="tiny preview-note" id="preview-note" hidden>Preview build · nothing was emailed</p>
       </div>
