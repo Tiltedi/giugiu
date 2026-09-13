@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pack a bag, Giulia</title>
+  <meta name="description" content="A surprise weekend. Two minutes of your time.">
+  <meta property="og:title" content="Pack a bag, Giulia">
+  <meta property="og:description" content="A surprise weekend. Two minutes of your time.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f6efe3">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23e4553b'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-weight='700' font-size='30' fill='%23f6efe3'%3E40%3C/text%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/dmmono-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><span class="bg__forty">40</span></div>
+  <div class="grain" aria-hidden="true"></div>
+  <canvas id="confetti" class="confetti" aria-hidden="true"></canvas>
+
+  <main id="app" class="app">
+
+    <!-- 0 · Reveal -->
+    <section class="screen screen--reveal" id="screen-reveal" data-screen="reveal">
+      <div class="screen__body screen__body--center">
+        <p class="eyebrow" data-stagger style="--i:0">For <span data-name>Giulia</span> · 40 &amp; going places</p>
+        <h1 class="display" data-stagger style="--i:1">Pack a bag,<br><em><span data-name>Giulia</span>.</em></h1>
+        <p class="lede" data-stagger style="--i:2">For your 40th we're taking you away for a weekend. Where? Our secret. We sort everything. You just tell us when you're free and what you like. Two minutes, promise.</p>
+        <div class="ticket-wrap" data-stagger style="--i:3" id="ticket-reveal" aria-hidden="true"></div>
+      </div>
+      <div class="screen__foot" data-stagger style="--i:4">
+        <button class="btn btn--primary" type="button" data-action="start">Unwrap it</button>
+      </div>
+    </section>
+
+    <!-- 1 · Weekends -->
+    <section class="screen" id="screen-weekends" data-screen="weekends" hidden>
+      <header class="screen__head">
+        <div class="topline" data-stagger style="--i:0">
+          <p class="eyebrow"><span class="step">01 / 03</span> When</p>
+          <button class="link link--back" type="button" data-action="back-to-reveal">← back</button>
+        </div>
+        <h2 class="display display--sm" data-stagger style="--i:1">When can you escape?</h2>
+        <p class="lede" data-stagger style="--i:2">Tap every weekend that works. The more, the better.</p>
+      </header>
+      <div class="screen__body">
+        <ul class="weekends" id="weekend-list" aria-label="Weekends that work for you" data-stagger style="--i:3"></ul>
+      </div>
+      <div class="screen__foot">
+        <p class="count" id="weekend-count" aria-live="polite">Nothing picked yet</p>
+        <button class="btn btn--primary" type="button" data-action="to-params" disabled>Next</button>
+      </div>
+    </section>
+
+    <!-- 2 · Parameters -->
+    <section class="screen" id="screen-params" data-screen="params" hidden>
+      <header class="screen__head">
+        <div class="topline" data-stagger style="--i:0">
+          <p class="eyebrow"><span class="step">02 / 03</span> What</p>
+          <button class="link link--back" type="button" data-action="back-to-weekends">← back</button>
+        </div>
+        <h2 class="display display--sm" data-stagger style="--i:1">Point us somewhere.</h2>
+        <p class="lede" data-stagger style="--i:2">Three quick taps.</p>
+      </header>
+      <form class="screen__body" id="params-form" novalidate>
+        <fieldset class="q" data-q="direction" data-stagger style="--i:3">
+          <legend class="q__label">Which way?</legend>
+          <div class="chips" data-chips="direction"></div>
+        </fieldset>
+        <fieldset class="q" data-q="kind" hidden>
+          <legend class="q__label">What kind of place?</legend>
+          <div class="chips" data-chips="kind"></div>
+        </fieldset>
+        <fieldset class="q" data-q="vibe" hidden>
+          <legend class="q__label">And the vibe?</legend>
+          <div class="chips" data-chips="vibe"></div>
+        </fieldset>
+        <div class="q" data-q="avoid" hidden>
+          <label class="q__label" for="avoid">Anywhere you'd rather skip?</label>
+          <input class="input" id="avoid" name="avoid" type="text" placeholder="Countries to avoid (optional)" autocomplete="off" autocapitalize="words" enterkeyhint="send" maxlength="120">
+        </div>
+      </form>
+      <div class="screen__foot">
+        <button class="btn btn--primary" type="submit" form="params-form" id="send" disabled>Send it</button>
+      </div>
+    </section>
+
+    <!-- 3 · Done -->
+    <section class="screen" id="screen-done" data-screen="done" hidden>
+      <header class="screen__head">
+        <p class="eyebrow" data-stagger style="--i:0"><span class="step">03 / 03</span> Done</p>
+        <h2 class="display display--sm" data-stagger style="--i:1">That's it. <em>Thank you.</em></h2>
+        <p class="lede" data-stagger style="--i:2">We take it from here. Next you'll hear from us: when to be ready. Not where you're going.</p>
+      </header>
+      <div class="screen__body">
+        <div class="ticket-wrap ticket-wrap--done" id="ticket-done" data-stagger style="--i:3"></div>
+
+        <div class="notice" id="delivery-notice" hidden>
+          <p>Our little postman tripped and your answers didn't reach us.</p>
+          <a class="btn btn--ghost" id="mailto-link" href="#">Send them by email instead</a>
+        </div>
+
+        <section class="countdowns" aria-labelledby="cd-title" data-stagger style="--i:4">
+          <h3 class="eyebrow" id="cd-title">While you wait</h3>
+          <div class="hero-count" id="hero-count"></div>
+          <ul class="milestones" id="milestones"></ul>
+        </section>
+
+        <p class="signoff" data-stagger style="--i:5">With love,<br><em data-from>the two of us</em></p>
+        <p class="tiny"><button class="link" type="button" data-action="reset" id="reset">Made a mistake? Start over</button></p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
