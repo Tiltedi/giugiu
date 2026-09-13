@@ -1,37 +1,8 @@
 /* ==================================================================
    Pack a bag, Giulia — styles
    Warm paper, ink, one hot coral. Fraunces for the voice,
-   DM Mono for the ticket details.
+   DM Mono for the ticket details (both loaded from Google Fonts).
    ================================================================== */
-
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("fonts/fraunces-latin.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: italic;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("fonts/fraunces-italic-latin.woff2") format("woff2");
-}
-@font-face {
-  font-family: "DM Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("fonts/dmmono-400-latin.woff2") format("woff2");
-}
-@font-face {
-  font-family: "DM Mono";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("fonts/dmmono-500-latin.woff2") format("woff2");
-}
 
 :root {
   color-scheme: light;
@@ -784,15 +755,7 @@ body {
     transition-duration: 0.01ms !important;
   }
   [data-stagger] { opacity: 1; transform: none; }
-  .ticket__v--wrap {
-  white-space: normal;
-  font-size: 14.5px;
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-.ticket__redacted { animation: none; }
+  .ticket__redacted { animation: none; }
 }
 
 /* ---------- wider screens ---------- */

@@ -5,8 +5,8 @@ picks the weekends that work for her, taps a few preferences, and hits send.
 Her answers are emailed to us. When she reopens the same link she sees her stamped
 ticket and a set of countdowns.
 
-No build step, no framework, no login. Plain `index.html` + `styles.css` + `app.js`,
-with the fonts self-hosted in `fonts/`.
+No build step, no framework, no login. Plain `index.html` + `styles.css` + `app.js`.
+The two typefaces (Fraunces and DM Mono) load from Google Fonts.
 
 ## Before you send her the link
 
