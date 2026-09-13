@@ -31,10 +31,11 @@ window.GIUGIU = {
   vibes: ["Slow & cosy", "Big nights", "Eat everything", "Explore all day"],
 
   // Countdowns she can expand after submitting. daysBefore counts back from departure.
+  // "detail" is the teaser; your real note for each key goes in trip.js.
   milestones: [
-    { title: "Weather check", daysBefore: 7, detail: "One week out we tell you what the sky's doing. Pack for it." },
-    { title: "Packing note",  daysBefore: 3, detail: "What to bring, what to leave." },
-    { title: "Where to be",   daysBefore: 1, detail: "Meeting point and time. Still not the place." },
-    { title: "The reveal",    daysBefore: 0, detail: "You'll know when you arrive. Not before." },
+    { key: "weather", title: "Weather check", daysBefore: 7, detail: "One week out we tell you what the sky's doing. Pack for it." },
+    { key: "packing", title: "Packing note",  daysBefore: 3, detail: "What to bring, what to leave." },
+    { key: "meeting", title: "Where to be",   daysBefore: 1, detail: "Meeting point and time. Still not the place." },
+    { key: "reveal",  title: "The reveal",    daysBefore: 0, detail: "You'll know when you arrive. Not before." },
   ],
 };

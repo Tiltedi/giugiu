@@ -576,6 +576,25 @@ body {
   100% { transform: rotate(-11deg) scale(1); opacity: 1; }
 }
 
+/* ---------- message from us ---------- */
+
+.message {
+  margin: 0 0 26px;
+  padding: 16px 18px 17px;
+  border-radius: 6px 18px 6px 18px;
+  background: rgba(240, 180, 41, 0.22);
+  box-shadow: 0 14px 28px -22px rgba(29, 26, 23, 0.6);
+  transform: rotate(-0.6deg);
+}
+.message[hidden] { display: none; }
+.message .eyebrow { margin-bottom: 6px; color: #9a6a00; }
+.message__text {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+  font-variation-settings: "opsz" 18, "SOFT" 60, "WONK" 1;
+}
+
 /* ---------- notice ---------- */
 
 .notice {
@@ -734,6 +753,16 @@ body {
   line-height: 1.4;
   color: var(--ink);
 }
+.milestone__from {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+.milestone__note { display: block; }
 .milestone__date {
   display: block;
   margin-top: 8px;

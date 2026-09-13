@@ -8,6 +8,7 @@
   "use strict";
 
   const C = window.GIUGIU || {};
+  const T = window.GIUGIU_TRIP || {};
   const STORAGE_KEY = "giugiu:v1";
   const DAY = 864e5;
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -20,6 +21,19 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const escLines = (s) => esc(s).replace(/\r?\n/g, "<br>");
+
+  /* ---------- trip file (trip.js) ---------- */
+
+  function tripAnswers() {
+    const a = T.answers;
+    return a && Array.isArray(a.weekends) && a.weekends.length ? a : null;
+  }
+  function noteFor(key) {
+    const n = T.notes && key ? T.notes[key] : null;
+    return typeof n === "string" && n.trim() ? n.trim() : null;
+  }
+  const showEarly = (key) => Array.isArray(T.showEarly) && T.showEarly.includes(key);
 
   /* ---------- dates ---------- */
 
@@ -194,7 +208,7 @@
 
   const subject = () => `${C.name}'s answers · surprise weekend`;
 
-  async function deliver(answers) {
+  async function deliver(answers, submittedAt) {
     if (C.preview) return true; // preview builds never email anyone
     if (!C.email) return false;
     const ctrl = new AbortController();
@@ -210,6 +224,14 @@
       vibe: answers.vibe,
       countries_to_avoid: answers.avoid || "(none)",
       submitted: new Date().toString(),
+      paste_into_trip_js: JSON.stringify({
+        weekends: answers.weekends,
+        direction: answers.direction,
+        kind: answers.kind,
+        vibe: answers.vibe,
+        avoid: answers.avoid || "",
+        submittedAt: submittedAt || new Date().toISOString(),
+      }),
     };
     try {
       const res = await fetch(`https://formsubmit.co/ajax/${C.email}`, {
@@ -244,7 +266,7 @@
   }
 
   async function retryDelivery(record) {
-    const ok = await deliver(record.answers);
+    const ok = await deliver(record.answers, record.submittedAt);
     if (ok) {
       record.delivered = true;
       save(record);
@@ -304,12 +326,19 @@
       ...m,
       at: new Date(anchor.date.getTime() - (m.daysBefore || 0) * DAY),
       whenLabel: m.daysBefore ? `${m.daysBefore} day${m.daysBefore === 1 ? "" : "s"} before` : "departure day",
+      note: noteFor(m.key),
     }));
     if (C.birthday) {
       const b = parseLocal(`${String(C.birthday).slice(0, 10)}T00:00`);
       if (b) items.push({ title: "Your 40th", detail: "The actual day. Cake is not optional.", at: b, whenLabel: "the big day" });
     }
     items.sort((a, b) => a.at - b.at);
+
+    // The expanded content: the teaser until the note is available, then the note itself.
+    const panelHTML = (m, available) => `
+      <p class="milestone__detail">${available
+        ? `<span class="milestone__from">From us</span><span class="milestone__note">${escLines(m.note)}</span>`
+        : esc(m.detail)}<span class="milestone__date">${esc(shortDate(m.at))} · ${esc(m.whenLabel)}</span></p>`;
 
     list.innerHTML = items.map((m, i) => `
       <li class="milestone">
@@ -318,9 +347,7 @@
           <span class="milestone__when" data-when></span>
           <span class="milestone__plus" aria-hidden="true">${PLUS}</span>
         </button>
-        <div class="milestone__panel" id="ms-${i}"><div>
-          <p class="milestone__detail">${esc(m.detail)}<span class="milestone__date">${esc(shortDate(m.at))} · ${esc(m.whenLabel)}</span></p>
-        </div></div>
+        <div class="milestone__panel" id="ms-${i}"><div></div></div>
       </li>`).join("");
 
     const picks = (record.answers.weekends || []).length;
@@ -328,9 +355,17 @@
       const now = Date.now();
       renderHero(hero, anchor, now, picks);
       $$(".milestone", list).forEach((li, i) => {
-        const diff = items[i].at - now;
-        $("[data-when]", li).textContent = diff <= 0 ? "Unlocked" : `in ${relShort(diff)}`;
-        li.classList.toggle("is-live", diff <= 0);
+        const m = items[i];
+        const diff = m.at - now;
+        const unlocked = diff <= 0;
+        const available = !!m.note && (unlocked || showEarly(m.key));
+        $("[data-when]", li).textContent = unlocked || available ? "Unlocked" : `in ${relShort(diff)}`;
+        li.classList.toggle("is-live", unlocked || available);
+        const state = available ? "note" : "teaser";
+        if (li.dataset.state !== state) {
+          li.dataset.state = state;
+          $(".milestone__panel > div", li).innerHTML = panelHTML(m, available);
+        }
       });
     };
     tick();
@@ -350,6 +385,10 @@
     $("#delivery-notice").hidden = record.delivered !== false;
     $("#mailto-link").href = mailtoHref(a);
     $("#preview-note").hidden = !C.preview;
+    $("#reset-row").hidden = !!record.fromTrip;
+    const message = typeof T.message === "string" ? T.message.trim() : "";
+    $("#trip-message").hidden = !message;
+    $("#trip-message-text").innerHTML = escLines(message);
     startCountdowns(record);
     if (celebrate) setTimeout(confetti, 350);
   }
@@ -448,8 +487,9 @@
       btn.textContent = "Sending";
 
       const answers = { ...state, weekends: state.weekends.slice() };
-      const delivered = await deliver(answers);
-      const record = { answers, submittedAt: new Date().toISOString(), delivered, confirmed: pendingConfirmed || null };
+      const submittedAt = new Date().toISOString();
+      const delivered = await deliver(answers, submittedAt);
+      const record = { answers, submittedAt, delivered, confirmed: pendingConfirmed || null };
       save(record);
 
       btn.classList.remove("is-busy");
@@ -519,6 +559,27 @@
     if (go && parseLocal(go)) {
       pendingConfirmed = go;
       if (record) { record.confirmed = go; save(record); }
+    }
+    if (T.confirmed && parseLocal(T.confirmed)) {
+      pendingConfirmed = T.confirmed;
+      if (record) record.confirmed = T.confirmed;
+    }
+
+    const trip = tripAnswers();
+    if (trip) {
+      record = {
+        answers: {
+          weekends: trip.weekends.slice(),
+          direction: trip.direction || null,
+          kind: trip.kind || null,
+          vibe: trip.vibe || null,
+          avoid: trip.avoid || "",
+        },
+        submittedAt: trip.submittedAt || null,
+        delivered: true,
+        confirmed: pendingConfirmed || (record && record.confirmed) || null,
+        fromTrip: true,
+      };
     }
 
     if (record && record.answers && Array.isArray(record.answers.weekends)) {
