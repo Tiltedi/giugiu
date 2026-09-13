@@ -695,7 +695,7 @@ body {
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 17px 0;
+  padding: 17px 0 13px;
   border: 0;
   background: none;
   color: inherit;
@@ -747,7 +747,7 @@ body {
 .milestone__panel > div { overflow: hidden; }
 .milestone.is-open .milestone__panel { grid-template-rows: 1fr; }
 .milestone__detail {
-  margin: -4px 0 18px;
+  margin: 0 0 18px;
   padding-right: 40px;
   font-size: 17px;
   line-height: 1.4;
