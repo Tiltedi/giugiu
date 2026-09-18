@@ -5,8 +5,8 @@
 window.GIUGIU = {
   name: "Giulia",
   companion: "Luca",                  // who actually travels with her
-  givers: "Marijke, Luca, Mum & Dad", // everyone the gift is from: named on the first screen
-  from: "Marijke & Luca",             // who signs off the last screen
+  givers: "Marijke, Luca, Mamma & Papa",    // everyone the gift is from: named on the first screen
+  from: "Marijke, Luca, Mamma, and Papa",   // who signs off the last screen
   email: "luca.pilurzu@hotmail.com",  // where her answers are emailed
   preview: false,                     // true = complete the flow without emailing (for test builds)
 
