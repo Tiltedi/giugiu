@@ -1,7 +1,7 @@
 # Pack a bag, Giulia
 
 A one-page gift: Giulia opens the link, learns she's going on a surprise weekend,
-picks the weekends that work for her, points a compass, and hits send.
+picks the weekends that work for her, and hits send.
 Her answers are emailed to us. When she reopens the same link she sees her stamped
 ticket and a set of countdowns, and as the trip approaches, our notes.
 
@@ -10,8 +10,8 @@ The two typefaces (Fraunces and DM Mono) load from Google Fonts.
 
 ## Before you send her the link
 
-1. **Check `config.js`.** The weekends, the names, the compass options and the milestone
-   copy all live there. Each weekend is a `from` and `to` date.
+1. **Check `config.js`.** The weekends, the names and the milestone copy all live there.
+   Each weekend is a `from` and `to` date.
 2. **Deploy it anywhere static.** GitHub Pages, Vercel, Netlify: any of them serves this
    folder as-is. Open the deployed URL on your own phone once.
 3. **Activate the email delivery.** Answers are sent through

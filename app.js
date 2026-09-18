@@ -1,6 +1,6 @@
 /* ==================================================================
    Pack a bag, Giulia — behaviour
-   Flow: reveal → weekends → direction → done (+ countdowns).
+   Flow: reveal → weekends → done (+ countdowns).
    Answers are emailed via FormSubmit and kept in localStorage; once
    they are pasted into trip.js that file drives the page everywhere.
    ================================================================== */
@@ -96,16 +96,14 @@
 
   /* ---------- state ---------- */
 
-  const state = { weekends: [], direction: null, avoid: "" };
+  const state = { weekends: [] };
   let pendingConfirmed = null; // a ?go= date seen before she has submitted
   let countdownTimer = null;
   let submitting = false;
-  let needleAngle = 0;
 
   const screens = {
     reveal: $("#screen-reveal"),
     weekends: $("#screen-weekends"),
-    params: $("#screen-params"),
     done: $("#screen-done"),
   };
   let current = null;
@@ -170,67 +168,7 @@
     const el = $("#weekend-count");
     el.textContent = n === 0 ? "Nothing picked yet" : n === 1 ? "1 picked" : n === 2 ? "2 picked" : `${n} picked · lovely`;
     el.classList.toggle("is-on", n > 0);
-    $("[data-action='to-params']").disabled = n === 0;
-  }
-
-  /* ---------- step 2: the compass ---------- */
-
-  const POS = { 0: "n", 90: "e", 180: "s", 270: "w" };
-
-  function renderCompass() {
-    const points = (C.directions || []).map((d, i) => {
-      const angle = Number.isFinite(d.angle) ? ((d.angle % 360) + 360) % 360 : null;
-      const pos = angle === null ? "c" : (POS[angle] || "c");
-      return `
-        <span class="chip compass__pt compass__pt--${pos}">
-          <input type="radio" id="direction-${i}" name="direction" value="${esc(d.label)}" data-angle="${angle === null ? "" : angle}">
-          <label class="chip__label${pos === "c" ? " chip__label--round" : ""}" for="direction-${i}">${esc(d.label)}</label>
-        </span>`;
-    }).join("");
-    $("[data-compass]").innerHTML = `
-      <div class="compass__ring" aria-hidden="true"></div>
-      <div class="compass__ticks" aria-hidden="true"></div>
-      <div class="compass__needle" aria-hidden="true"></div>
-      ${points}`;
-  }
-
-  function pointNeedle(angleAttr) {
-    const compass = $("[data-compass]");
-    compass.classList.add("is-set");
-    const anywhere = angleAttr === "" || angleAttr == null;
-    compass.classList.toggle("is-anywhere", anywhere);
-    if (anywhere) return;
-    // take the short way round
-    const target = Number(angleAttr);
-    let delta = ((target - (needleAngle % 360)) + 540) % 360 - 180;
-    needleAngle += delta;
-    compass.style.setProperty("--angle", `${needleAngle}deg`);
-  }
-
-  const ORDER = ["direction", "avoid"];
-
-  function revealNext(afterKey) {
-    const nextKey = ORDER[ORDER.indexOf(afterKey) + 1];
-    if (!nextKey) return;
-    const q = $(`[data-q="${nextKey}"]`);
-    if (!q || !q.hidden) return;
-    q.hidden = false;
-    requestAnimationFrame(() => q.scrollIntoView({ block: "end", behavior: reducedMotion ? "auto" : "smooth" }));
-  }
-
-  function updateSend() {
-    $("#send").disabled = !state.direction;
-  }
-
-  function resetParams() {
-    state.direction = null;
-    $$('input[name="direction"]').forEach((i) => { i.checked = false; });
-    const compass = $("[data-compass]");
-    compass.classList.remove("is-set", "is-anywhere");
-    state.avoid = "";
-    $("#avoid").value = "";
-    $('[data-q="avoid"]').hidden = true;
-    updateSend();
+    $("#send").disabled = n === 0;
   }
 
   /* ---------- delivery ---------- */
@@ -248,13 +186,9 @@
       _captcha: "false",
       name: C.name,
       weekends: answers.weekends.map(labelFor).join("  /  "),
-      direction: answers.direction,
-      places_to_avoid: answers.avoid || "(none)",
       submitted: new Date().toString(),
       paste_into_trip_js: JSON.stringify({
         weekends: answers.weekends,
-        direction: answers.direction,
-        avoid: answers.avoid || "",
         submittedAt: submittedAt || new Date().toISOString(),
       }),
     };
@@ -280,8 +214,6 @@
       "Hi! Here are my answers.",
       "",
       `Weekends: ${answers.weekends.map(labelFor).join(", ")}`,
-      `Direction: ${answers.direction}`,
-      `Places to avoid: ${answers.avoid || "none"}`,
       "",
       `${C.name} x`,
     ].join("\n");
@@ -297,7 +229,7 @@
     }
   }
 
-  /* ---------- step 3: done + countdowns ---------- */
+  /* ---------- step 2: done + countdowns ---------- */
 
   // Until the weekend is confirmed, her page counts down to our next message.
   function nextNewsAt(record) {
@@ -487,35 +419,21 @@
   function bind() {
     $("[data-action='start']").addEventListener("click", () => show("weekends"));
     $("[data-action='back-to-reveal']").addEventListener("click", () => show("reveal"));
-    $("[data-action='back-to-weekends']").addEventListener("click", () => show("weekends"));
-    $("[data-action='to-params']").addEventListener("click", () => { if (state.weekends.length) show("params"); });
 
     $("#weekend-list").addEventListener("change", () => {
       state.weekends = $$('input[name="weekends"]:checked').map((i) => i.value);
       updateCount();
     });
 
-    $("#params-form").addEventListener("change", (e) => {
-      if (e.target.name === "direction") {
-        state.direction = e.target.value;
-        pointNeedle(e.target.dataset.angle);
-        revealNext("direction");
-        updateSend();
-      }
-    });
-
-    $("#params-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (submitting || !(state.direction && state.weekends.length)) return;
+    $("#send").addEventListener("click", async () => {
+      if (submitting || !state.weekends.length) return;
       submitting = true;
-      state.avoid = $("#avoid").value.trim();
-      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
 
       const btn = $("#send");
       btn.classList.add("is-busy");
       btn.textContent = "Sending";
 
-      const answers = { weekends: state.weekends.slice(), direction: state.direction, avoid: state.avoid };
+      const answers = { weekends: state.weekends.slice() };
       const submittedAt = new Date().toISOString();
       const delivered = await deliver(answers, submittedAt);
       const record = { answers, submittedAt, delivered, confirmed: pendingConfirmed || null };
@@ -557,7 +475,6 @@
       state.weekends = [];
       renderWeekends();
       updateCount();
-      resetParams();
       show("weekends");
     });
   }
@@ -571,9 +488,7 @@
 
     $("#ticket-reveal").innerHTML = ticketHTML({ whenText: "You tell us" });
     renderWeekends();
-    renderCompass();
     updateCount();
-    updateSend();
     bind();
 
     const params = new URLSearchParams(location.search);
@@ -596,7 +511,7 @@
     const trip = tripAnswers();
     if (trip) {
       record = {
-        answers: { weekends: trip.weekends.slice(), direction: trip.direction || null, avoid: trip.avoid || "" },
+        answers: { weekends: trip.weekends.slice() },
         submittedAt: trip.submittedAt || null,
         delivered: true,
         confirmed: pendingConfirmed || (record && record.confirmed) || null,

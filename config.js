@@ -29,15 +29,6 @@ window.GIUGIU = {
   // Optional: her birthday as YYYY-MM-DD adds a "Your 40th" countdown. null hides it.
   birthday: null,
 
-  // The compass. Angles: 0 north, 90 east, 180 south, 270 west; null sits in the middle.
-  directions: [
-    { label: "North", angle: 0 },
-    { label: "East", angle: 90 },
-    { label: "South", angle: 180 },
-    { label: "West", angle: 270 },
-    { label: "Anywhere", angle: null },
-  ],
-
   // Countdowns she can expand once the weekend is confirmed. daysBefore counts back from departure.
   // "detail" is the teaser; your real note for each key goes in trip.js.
   milestones: [

@@ -27,7 +27,7 @@
       <div class="screen__body screen__body--center">
         <p class="eyebrow" data-stagger style="--i:0">From <span data-givers>Marijke, Luca, Mamma &amp; Papa</span></p>
         <h1 class="display" data-stagger style="--i:1">Pack a bag,<br><em><span data-name>Giulia</span>.</em></h1>
-        <p class="lede" data-stagger style="--i:2">Your 40th present from <span data-givers>Marijke, Luca, Mamma &amp; Papa</span>: a sibling weekend away! Where? Our secret. We sort everything. Tell us when you're free and which way to point. Two minutes, promise.</p>
+        <p class="lede" data-stagger style="--i:2">Your 40th present from <span data-givers>Marijke, Luca, Mamma &amp; Papa</span>: a sibling weekend away! Where? Our secret. We sort everything. Tell us when you're free. One minute, promise.</p>
         <div class="ticket-wrap" data-stagger style="--i:3" id="ticket-reveal" aria-hidden="true"></div>
       </div>
       <div class="screen__foot" data-stagger style="--i:4">
@@ -39,7 +39,7 @@
     <section class="screen" id="screen-weekends" data-screen="weekends" hidden>
       <header class="screen__head">
         <div class="topline" data-stagger style="--i:0">
-          <p class="eyebrow"><span class="step">01 / 03</span> When</p>
+          <p class="eyebrow"><span class="step">01 / 02</span> When</p>
           <button class="link link--back" type="button" data-action="back-to-reveal">← back</button>
         </div>
         <h2 class="display display--sm" data-stagger style="--i:1">When can you escape?</h2>
@@ -50,39 +50,14 @@
       </div>
       <div class="screen__foot">
         <p class="count" id="weekend-count" aria-live="polite">Nothing picked yet</p>
-        <button class="btn btn--primary" type="button" data-action="to-params" disabled>Next</button>
+        <button class="btn btn--primary" type="button" data-action="send" id="send" disabled>Send it</button>
       </div>
     </section>
 
-    <!-- 2 · Direction -->
-    <section class="screen" id="screen-params" data-screen="params" hidden>
-      <header class="screen__head">
-        <div class="topline" data-stagger style="--i:0">
-          <p class="eyebrow"><span class="step">02 / 03</span> Where</p>
-          <button class="link link--back" type="button" data-action="back-to-weekends">← back</button>
-        </div>
-        <h2 class="display display--sm" data-stagger style="--i:1">Which corner of Europe?</h2>
-        <p class="lede" data-stagger style="--i:2">Tap a direction, or leave it to us.</p>
-      </header>
-      <form class="screen__body" id="params-form" novalidate>
-        <fieldset class="q q--compass" data-q="direction" data-stagger style="--i:3">
-          <legend class="sr-only">Which corner of Europe?</legend>
-          <div class="compass" data-compass></div>
-        </fieldset>
-        <div class="q" data-q="avoid" hidden>
-          <label class="q__label" for="avoid">Anywhere you'd rather skip?</label>
-          <input class="input" id="avoid" name="avoid" type="text" placeholder="Places to avoid (optional)" autocomplete="off" autocapitalize="words" enterkeyhint="send" maxlength="120">
-        </div>
-      </form>
-      <div class="screen__foot">
-        <button class="btn btn--primary" type="submit" form="params-form" id="send" disabled>Send it</button>
-      </div>
-    </section>
-
-    <!-- 3 · Done -->
+    <!-- 2 · Done -->
     <section class="screen" id="screen-done" data-screen="done" hidden>
       <header class="screen__head">
-        <p class="eyebrow" data-stagger style="--i:0"><span class="step">03 / 03</span> Done</p>
+        <p class="eyebrow" data-stagger style="--i:0"><span class="step">02 / 02</span> Done</p>
         <h2 class="display display--sm" data-stagger style="--i:1">That's it. <em>Thank you.</em></h2>
         <p class="lede" data-stagger style="--i:2">We take it from here. Next you'll hear from us: when to be ready. Not where you're going.</p>
       </header>

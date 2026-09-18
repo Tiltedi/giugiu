@@ -15,8 +15,6 @@ window.GIUGIU_TRIP = {
   // Paste her answers here. Weekends are the Friday of each one. Example:
   // answers: {
   //   weekends: ["2026-11-20", "2027-01-15"],
-  //   direction: "South",
-  //   avoid: "",
   //   submittedAt: "2026-09-20T10:12:00.000Z",
   // },
   answers: null,
