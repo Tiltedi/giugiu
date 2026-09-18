@@ -565,6 +565,7 @@
   function init() {
     $$("[data-name]").forEach((el) => { el.textContent = C.name; });
     $$("[data-from]").forEach((el) => { el.textContent = C.from; });
+    $$("[data-givers]").forEach((el) => { el.textContent = C.givers || C.from; });
     $$("[data-companion]").forEach((el) => { el.textContent = C.companion || "us"; });
     if (C.name) document.title = `Pack a bag, ${C.name}`;
 
