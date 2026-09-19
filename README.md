@@ -75,3 +75,13 @@ npx http-server -p 8080 -c-1 .
 ```
 
 then open `http://localhost:8080/?reset`.
+
+## The printed page
+
+`print/giulia-a4.pdf` is an A4 page to hand her: the headline, her ticket with a QR
+code on the stub that opens the site, the address in case the camera sulks, and the
+sign-off. Print it at 100% on A4 with margins off and background graphics on. Once
+deployed it's also at `/print/giulia-a4.pdf` on the site.
+
+`print/giulia-a4.html` is the source. Edit it, open it in Chrome, and print to PDF with
+the same settings to regenerate.
