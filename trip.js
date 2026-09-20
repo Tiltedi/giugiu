@@ -17,7 +17,10 @@ window.GIUGIU_TRIP = {
   //   weekends: ["2026-11-20", "2027-01-15"],
   //   submittedAt: "2026-09-20T10:12:00.000Z",
   // },
-  answers: null,
+  answers: {
+    weekends: ["2026-11-20", "2027-01-15", "2027-01-22"],
+    submittedAt: "2026-09-20T06:59:45.100Z",
+  },
 
   // The weekend you picked: its Friday as "YYYY-MM-DD", or "YYYY-MM-DDTHH:MM" in her local time.
   confirmed: null,
