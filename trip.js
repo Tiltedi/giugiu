@@ -23,7 +23,7 @@ window.GIUGIU_TRIP = {
   },
 
   // The weekend you picked: its Friday as "YYYY-MM-DD", or "YYYY-MM-DDTHH:MM" in her local time.
-  confirmed: null,
+  confirmed: "2027-01-15",
 
   // A short line from you two, shown on her page. null hides it.
   message: null,
